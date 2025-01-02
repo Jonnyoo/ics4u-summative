@@ -1,0 +1,162 @@
+/* MOVIES SECTION */
+.featured-movies,
+.popular-shows,
+.popular-movies {
+    padding: 20px;
+    margin-inline: 20px;
+    margin-top: 20px;
+}
+
+.movie-card {
+    display: flex;
+    flex-wrap: nowrap;
+    justify-content: center;
+    gap: 35px;
+    margin-top: 10px;
+}
+
+.movie-img {
+    width: 100%;
+    height: auto;
+    border-radius: 20px;
+    transition: transform 0.3s, box-shadow 0.3s;
+}
+
+.movie-container:hover .movie-img {
+    box-shadow: 0 0px 25px #ffaa21;
+    transform: translateY(-8px);
+}
+
+.movie-container:hover .rent-button {
+    transform: translateY(-8px);
+}
+
+.movie-container {
+    position: relative;
+    max-width: 300px;
+}
+
+.rent-button {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    padding: 5px 10px;
+    font-size: 14px;
+    font-family: 'helvetica';
+    font-weight: bold;
+    color: #191919;
+    background-color: #ededed;
+    border: none;
+    border-radius: 15px;
+    cursor: pointer;
+    z-index: 1;
+    transition: transform 0.3s ease;
+}
+
+
+.movie-title-name {
+    font-family: 'helvetica';
+    font-size: 20px;
+    color: #ffffffc3;
+    font-weight: normal;
+    margin-top: 10px;
+}
+
+.moviesection-title {
+    font-family: 'helvetica';
+    font-size: 25px;
+    color: #ffffffe0;
+    font-weight: bold;
+    display: inline-block;
+    position: relative;
+    padding-bottom: 10px;
+}
+
+.moviesection-title::after {
+    content: "";
+    display: block;
+    width: 100%;
+    height: 5px;
+    background-color: #ffaa21;
+    position: absolute;
+    bottom: 0;
+    left: 0;
+}
+
+/* Media Queries */
+@media (max-width: 1200px) {
+    .movie-container {
+        max-width: 200px;
+    }
+
+    .movie-img {
+        border-radius: 17px;
+    }
+
+    .movie-card {
+        gap: 25px;
+    }
+
+    .movie-title {
+        font-size: 14px;
+    }
+}
+
+@media (max-width: 992px) {
+    .movie-container {
+        max-width: 150px;
+    }
+
+    .movie-img {
+        border-radius: 13px;
+    }
+
+    .movie-card {
+        gap: 20px;
+    }
+
+    .rent-button {
+        padding: 4px 8px;
+        font-size: 12px;
+        top: 8px;
+        left: 8px;
+    }
+}
+
+@media (max-width: 768px) {
+    .movie-img {
+        border-radius: 8px;
+    }
+
+    .movie-card {
+        gap: 15px;
+    }
+
+    .rent-button {
+        padding: 3px 6px;
+        font-size: 11px;
+        top: 6px;
+        left: 6px;
+    }
+}
+
+@media (max-width: 480px) {
+    .movie-container {
+        max-width: 100px;
+    }
+
+    .movie-img {
+        border-radius: 5px;
+    }
+
+    .movie-card {
+        gap: 10px;
+    }
+
+    .rent-button {
+        padding: 2px 5px;
+        font-size: 10px;
+        top: 5px;
+        left: 5px;
+    }
+}

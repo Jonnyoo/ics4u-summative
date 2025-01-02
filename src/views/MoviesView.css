@@ -1,0 +1,50 @@
+.app-container {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    margin-top: 150px;
+    width: 1400px;
+}
+
+.genre-container {
+    display: flex;
+    flex: 1;
+    padding-left: 70px;
+}
+
+.genre {
+    display: flex;
+    min-width: 1000px;
+}
+
+.genre-list {
+    margin-top: 95px;
+    list-style-type: none;
+    width: 300px;
+    height: 1150px;
+    padding: 30px;
+    background-color: #282c2f;
+    border-right: 1px solid #222427;
+    border-radius: 20px;
+    padding-right: 41px;
+}
+
+.genre-movies {
+    width: 80%;
+    padding: 20px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    justify-content: center;
+    margin-left: 20px;
+}
+
+.movieview-title {
+    font-family: helvetica;
+    color: #dbdbdb;
+    font-size: 40px;
+    font-weight: bold;
+    margin-left: 70px;
+    margin-top: 70px;
+    margin-bottom: -60px;
+}

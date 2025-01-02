@@ -1,0 +1,120 @@
+.settings-view {
+    display: flex;
+    flex-direction: column;
+    align-items: left;
+    padding: 40px;
+    background-color: #282c2f;
+    border-radius: 20px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+}
+
+.settings-title {
+    font-family: 'helvetica';
+    font-size: 40px;
+    color: #d0d0d0;
+    font-weight: bold;
+    text-decoration: none;
+    margin-bottom: 20px;
+}
+
+.settings-section {
+    background-color: #3d4246;
+    padding-top: 10px;
+    padding-left: 20px;
+    padding-bottom: 15px;
+    border-radius: 15px;
+    margin-bottom: 20px;
+}
+
+.settings-label {
+    display: flex;
+    align-items: center;
+    margin-bottom: 5px;
+    color: rgb(198, 198, 198);
+    margin-top: 10px;
+    font-size: 17px;
+    font-family: 'helvetica';
+}
+
+.settings-info-value {
+    display: flex;
+    align-items: center;
+    margin-bottom: 5px;
+    color: rgb(237, 237, 237);
+    margin-top: 10px;
+    font-size: 20px;
+    font-family: 'helvetica';
+
+}
+
+.settings-label span {
+    margin-right: 10px;
+}
+
+.settings-section input[type="text"] {
+    width: 450px;
+    padding: 8px;
+    border-radius: 10px;
+}
+
+.edit-button {
+    padding: 10px 20px;
+    background-color: #ffaa21;
+    color: rgb(0, 0, 0);
+    border: none;
+    cursor: pointer;
+    margin-left: 10px;
+    border-radius: 20px;
+}
+
+.edit-button:hover {
+    background-color: #dad8d5;
+}
+
+.settings-genre-checkboxes {
+    display: flex;
+    flex-wrap: wrap;
+    width: 550px;
+    margin-top: 25px;
+    margin-bottom: -15px;
+}
+
+.settings-genre-checkboxes div {
+    margin-right: 10px;
+    margin-bottom: 35px;
+}
+
+.settings-genre-checkboxes label {
+    font-size: 14px;
+    color: #dddddd;
+    cursor: pointer;
+    padding: 10px 20px;
+    border: 2px solid #dddddd;
+    border-radius: 20px;
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.settings-genre-checkboxes input[type="checkbox"] {
+    display: none;
+}
+
+.settings-genre-checkboxes input[type="checkbox"]:checked+label {
+    background-color: #ffaa21;
+    color: #282c2f;
+    border-color: #ffaa21;
+}
+
+.save-button {
+    padding: 10px 20px;
+    background-color: #ffaa21;
+    color: rgb(0, 0, 0);
+    border: none;
+    cursor: pointer;
+    margin-left: 10px;
+    border-radius: 20px;
+    width: 150px;
+}
+
+.save-button:hover {
+    background-color: #dad8d5;
+}
