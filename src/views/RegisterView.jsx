@@ -2,7 +2,7 @@ import "./RegisterView.css";
 import Header from "../Components/Header";
 import { Link } from 'react-router-dom';
 import { useState } from "react";
-import { createUserWithEmailAndPassword, updateProfile, signInWithPopup, GoogleAuthProvider, signInWithRedirect } from "firebase/auth";
+import { createUserWithEmailAndPassword, updateProfile, signInWithPopup, GoogleAuthProvider } from "firebase/auth";
 import { auth } from "../firebase";
 import { useNavigate } from 'react-router-dom';
 import { useStoreContext } from '../Context/context.jsx';
@@ -19,17 +19,24 @@ function RegisterView() {
 
   const registerByEmail = async (event) => {
     event.preventDefault();
-
+  
     try {
+      console.log(firstName, lastName, email, password);
+      console.log("trying to create user with email and password");
       const user = (await createUserWithEmailAndPassword(auth, email, password)).user;
+      console.log("signed in with email and password");
       await updateProfile(user, { displayName: `${firstName} ${lastName}` });
+      console.log("updated profile");
       setUser(user);
+      console.log("set user");
       navigate('/movies');
+      console.log("navigated");
     } catch (error) {
+      console.error("Error creating user with email and password:", error);
       alert("Error creating user with email and password!");
     }
   };
-
+  
   const registerByGoogle = async () => {
     try {
       const user = (await signInWithPopup(auth, new GoogleAuthProvider())).user;
