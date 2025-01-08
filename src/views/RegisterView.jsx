@@ -1,10 +1,9 @@
 import "./RegisterView.css";
 import Header from "../Components/Header";
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useState } from "react";
 import { createUserWithEmailAndPassword, updateProfile, signInWithPopup, GoogleAuthProvider } from "firebase/auth";
 import { auth } from "../firebase";
-import { useNavigate } from 'react-router-dom';
 import { useStoreContext } from '../Context/context.jsx';
 import { useRef } from 'react';
 
@@ -14,39 +13,72 @@ function RegisterView() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [errorMessage, setErrorMessage] = useState("");
   const { setUser } = useStoreContext();
   const navigate = useNavigate();
 
+  function displayError(error) {
+    console.error("Error creating user with email and password:")
+    console.error(error.message);
+    // setErrorMessage(`Error creating user with email and password! ${error.message}`);
+    if (error.message === "Firebase: Error (auth/email-already-in-use).") {
+      setErrorMessage("This email is already in use!");
+    } else if (error.message === "Firebase: Password should be at least 6 characters (auth/weak-password).") {
+      setErrorMessage("Password should be at least 6 characters!");
+    }
+  }
+
+
   const registerByEmail = async (event) => {
     event.preventDefault();
-  
+
     try {
-      console.log(firstName, lastName, email, password);
-      console.log("trying to create user with email and password");
+      if (confirmPassword != password) {
+        setErrorMessage("Your passwords don't match!");
+        return;
+      }
+
+      const selectedGenresIds = Object.keys(checkBoxesRef.current)
+        .filter((genreId) => checkBoxesRef.current[genreId].checked)
+        .map(Number);
+
+      if (selectedGenresIds.length < 10) {
+        setErrorMessage("You need at least 10 genres!");
+        return;
+      }
+
       const user = (await createUserWithEmailAndPassword(auth, email, password)).user;
-      console.log("signed in with email and password");
       await updateProfile(user, { displayName: `${firstName} ${lastName}` });
-      console.log("updated profile");
       setUser(user);
-      console.log("set user");
+
+      const selectedGenres = genres.filter((genre) => selectedGenresIds.includes(genre.id));
+
       navigate('/movies');
-      console.log("navigated");
     } catch (error) {
-      console.error("Error creating user with email and password:", error);
-      alert("Error creating user with email and password!");
+      displayError(error);
     }
   };
-  
+
   const registerByGoogle = async () => {
     try {
+      const selectedGenresIds = Object.keys(checkBoxesRef.current)
+        .filter((genreId) => checkBoxesRef.current[genreId].checked)
+        .map(Number);
+
+      if (selectedGenresIds.length < 10) {
+        setErrorMessage("You need at least 10 genres!");
+        return;
+      }
+
       const user = (await signInWithPopup(auth, new GoogleAuthProvider())).user;
+      const selectedGenres = genres.filter((genre) => selectedGenresIds.includes(genre.id));
       console.log("signed in with google");
       setUser(user);
       console.log("set user");
       navigate('/movies');
       console.log("navigated");
     } catch {
-      alert("Error creating user with email and password!");
+      alert("Error creating user with Google!");
     }
   }
 
@@ -147,10 +179,11 @@ function RegisterView() {
           />
           <button type="submit" className="register-button">Register</button>
         </form>
+        <button onClick={() => registerByGoogle()} className="register-button">Register with Google</button>
         <p className="login-link">
-          Already have an account? <Link to={`/login`} className="login-link">Login</Link>
+          <Link to={`/login`} className="login-link">Already have an account? Login</Link>
         </p>
-        <button onClick={() => registerByGoogle()} className="register-button">Register by Google</button>
+        {errorMessage && <div className="error-message">{errorMessage}</div>}
       </div>
       <div className="genre-selector">
         <h2>Choose Your Favorite Genres</h2>
