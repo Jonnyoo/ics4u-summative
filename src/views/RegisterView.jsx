@@ -54,6 +54,7 @@ function RegisterView() {
       const selectedGenres = genres.filter((genre) => selectedGenresIds.includes(genre.id));
 
       navigate('/movies');
+      console.log(user);
     } catch (error) {
       displayError(error);
     }
@@ -77,6 +78,7 @@ function RegisterView() {
       console.log("set user");
       navigate('/movies');
       console.log("navigated");
+      console.log(user);
     } catch {
       alert("Error creating user with Google!");
     }

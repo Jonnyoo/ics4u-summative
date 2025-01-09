@@ -20,6 +20,7 @@ function LoginView() {
       const user = (await signInWithEmailAndPassword(auth, email.current.value, password)).user;
       navigate('/movies');
       setUser(user);
+      console.log(user);
     } catch (error) {
       console.log(error);
       alert("Error signing in!");
@@ -31,6 +32,7 @@ function LoginView() {
       const user = (await signInWithPopup(auth, new GoogleAuthProvider())).user;
       navigate('/movies');
       setUser(user);
+      console.log(user);
     } catch (error) {
       console.log(error);
       alert("Error signing in!");
