@@ -1,11 +1,11 @@
 import "./RegisterView.css";
 import Header from "../Components/Header";
 import { Link, useNavigate } from 'react-router-dom';
-import { useState } from "react";
+import { getFirestore, doc, setDoc } from "firebase/firestore"; 
 import { createUserWithEmailAndPassword, updateProfile, signInWithPopup, GoogleAuthProvider } from "firebase/auth";
 import { auth } from "../firebase";
 import { useStoreContext } from '../Context/context.jsx';
-import { useRef } from 'react';
+import { useState, useRef } from 'react';
 
 function RegisterView() {
   const [firstName, setFirstName] = useState("");
@@ -16,6 +16,8 @@ function RegisterView() {
   const [errorMessage, setErrorMessage] = useState("");
   const { setUser } = useStoreContext();
   const navigate = useNavigate();
+  const checkBoxesRef = useRef({});
+  const genres = []; // Assuming genres is defined somewhere in your component
 
   function displayError(error) {
     console.error("Error creating user with email and password:")
