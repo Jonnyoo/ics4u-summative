@@ -2,7 +2,7 @@ import "./RegisterView.css";
 import Header from "../Components/Header";
 import { Link, useNavigate } from 'react-router-dom';
 import { getFirestore, doc, setDoc } from "firebase/firestore"; 
-import { createUserWithEmailAndPassword, updateProfile, signInWithPopup, GoogleAuthProvider } from "firebase/auth";
+import { getAuth, createUserWithEmailAndPassword, updateProfile, signInWithPopup, GoogleAuthProvider } from "firebase/auth";
 import { auth } from "../firebase";
 import { useStoreContext } from '../Context/context.jsx';
 import { useState, useRef } from 'react';
@@ -17,7 +17,26 @@ function RegisterView() {
   const { setUser } = useStoreContext();
   const navigate = useNavigate();
   const checkBoxesRef = useRef({});
-  const genres = []; // Assuming genres is defined somewhere in your component
+  const genres = [
+    { genre: "Sci-Fi", id: 878 },
+    { genre: "Thriller", id: 53 },
+    { genre: "Adventure", id: 12 },
+    { genre: "Family", id: 10751 },
+    { genre: "Animation", id: 16 },
+    { genre: "Action", id: 28 },
+    { genre: "History", id: 36 },
+    { genre: "Fantasy", id: 14 },
+    { genre: "Horror", id: 27 },
+    { genre: "Comedy", id: 35 },
+    { genre: "Crime", id: 80 },
+    { genre: "Music", id: 10402 },
+    { genre: "Mystery", id: 9648 },
+    { genre: "War", id: 10752 },
+    { genre: "Western", id: 37 }
+  ];
+
+  const db = getFirestore();
+  const auth = getAuth();
 
   function displayError(error) {
     console.error("Error creating user with email and password:")
@@ -30,7 +49,6 @@ function RegisterView() {
     }
   }
 
-
   const registerByEmail = async (event) => {
     event.preventDefault();
 
@@ -39,6 +57,10 @@ function RegisterView() {
         setErrorMessage("Your passwords don't match!");
         return;
       }
+
+      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+      const user = userCredential.user;
+      await updateProfile(user, { displayName: `${firstName} ${lastName}` });
 
       const selectedGenresIds = Object.keys(checkBoxesRef.current)
         .filter((genreId) => checkBoxesRef.current[genreId].checked)
@@ -85,26 +107,6 @@ function RegisterView() {
       alert("Error creating user with Google!");
     }
   }
-
-  const genres = [
-    { genre: "Sci-Fi", id: 878 },
-    { genre: "Thriller", id: 53 },
-    { genre: "Adventure", id: 12 },
-    { genre: "Family", id: 10751 },
-    { genre: "Animation", id: 16 },
-    { genre: "Action", id: 28 },
-    { genre: "History", id: 36 },
-    { genre: "Fantasy", id: 14 },
-    { genre: "Horror", id: 27 },
-    { genre: "Comedy", id: 35 },
-    { genre: "Crime", id: 80 },
-    { genre: "Music", id: 10402 },
-    { genre: "Mystery", id: 9648 },
-    { genre: "War", id: 10752 },
-    { genre: "Western", id: 37 }
-  ];
-
-  const checkBoxesRef = useRef({});
 
   function handleSubmit(event) {
     event.preventDefault();
