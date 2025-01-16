@@ -66,16 +66,24 @@ function RegisterView() {
         .filter((genreId) => checkBoxesRef.current[genreId].checked)
         .map(Number);
 
+        const selectedGenres = genres.filter((genre) => selectedGenresIds.includes(genre.id));
+
       if (selectedGenresIds.length < 10) {
         setErrorMessage("You need at least 10 genres!");
         return;
       }
 
-      const user = (await createUserWithEmailAndPassword(auth, email, password)).user;
+      await setDoc(doc(db, "users", user.uid), {
+        firstName,
+        lastName,
+        email,
+        selectedGenres
+      });
+
       await updateProfile(user, { displayName: `${firstName} ${lastName}` });
       setUser(user);
 
-      const selectedGenres = genres.filter((genre) => selectedGenresIds.includes(genre.id));
+      // const selectedGenres = genres.filter((genre) => selectedGenresIds.includes(genre.id));
 
       navigate('/movies');
       console.log(user);
