@@ -83,8 +83,6 @@ function RegisterView() {
       await updateProfile(user, { displayName: `${firstName} ${lastName}` });
       setUser(user);
 
-      // const selectedGenres = genres.filter((genre) => selectedGenresIds.includes(genre.id));
-
       navigate('/movies');
       console.log(user);
     } catch (error) {
@@ -105,6 +103,14 @@ function RegisterView() {
 
       const user = (await signInWithPopup(auth, new GoogleAuthProvider())).user;
       const selectedGenres = genres.filter((genre) => selectedGenresIds.includes(genre.id));
+
+      await setDoc(doc(db, "users", user.uid), {
+        firstName: user.displayName.split(' ')[0],
+        lastName: user.displayName.split(' ')[1] || '',
+        email: user.email,
+        selectedGenres
+      });
+
       console.log("signed in with google");
       setUser(user);
       console.log("set user");

@@ -11,7 +11,7 @@ export const StoreProvider = ({ children }) => {
     //cart
     const [cart, setCart] = useState(Map());
     //genres
-    const [selectedGenres, setSelected] = useState([]);
+    const [selectedGenres, setSelectedGenres] = useState([]);
     const [currentGenre, setCurrentGenre] = useState([]);
     const [loading, setLoading] = useState(true);
 
@@ -36,7 +36,7 @@ export const StoreProvider = ({ children }) => {
         <StoreContext.Provider value={{
             cart, setCart,
             user, setUser,
-            selectedGenres, setSelected,
+            selectedGenres, setSelectedGenres,
             currentGenre, setCurrentGenre,
         }}>
             {children}

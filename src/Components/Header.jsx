@@ -1,16 +1,39 @@
-import { Link } from 'react-router-dom';
-import { useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import { getFirestore, doc, getDoc } from "firebase/firestore";
+import { getAuth, signOut } from "firebase/auth";
 import { useStoreContext } from '../Context/context.jsx';
 import './Header.css';
 
 function Header() {
-    const { firstName } = useStoreContext();
+    const [firstName, setFirstName] = useState("");
     const { user } = useStoreContext();
     const navigate = useNavigate();
+    const db = getFirestore();
+    const auth = getAuth();
+    const currentUser = auth.currentUser;
 
-    const handleLogout = () => {
-        setLoggedIn(false);
-        navigate('/');
+    useEffect(() => {
+        const fetchUserData = async () => {
+            if (currentUser) {
+                const userDoc = await getDoc(doc(db, "users", currentUser.uid));
+                if (userDoc.exists()) {
+                    const userData = userDoc.data();
+                    setFirstName(userData.firstName);
+                }
+            }
+        };
+
+        fetchUserData();
+    }, [currentUser, db]);
+
+    const handleLogout = async () => {
+        try {
+            await signOut(auth);
+            navigate('/');
+        } catch (error) {
+            console.error("Error logging out: ", error);
+        }
     };
 
     return (
@@ -21,14 +44,14 @@ function Header() {
                 <a className="nav-link"><Link to={`/movies`} className="nav-link">Movies</Link></a>
             </div>
             <div className="welcome-container">
-                {user ? (
+                {currentUser ? (
                     <> <p className="welcome-message">Hello, {firstName}!</p> </>
                 ) : (
                     <></>
                 )}
             </div>
             <div className="button-container">
-                {user ? (
+                {currentUser ? (
                     <>
                         <button className="buttons" type="button"><Link to={`/cart`} className="button">Cart</Link></button>
                         <button className="buttons" type="button"><Link to={`/settings`} className="button">Settings</Link></button>
