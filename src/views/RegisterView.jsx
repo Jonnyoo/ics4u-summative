@@ -1,9 +1,9 @@
 import "./RegisterView.css";
 import Header from "../Components/Header";
 import { Link, useNavigate } from 'react-router-dom';
-import { getFirestore, doc, setDoc } from "firebase/firestore"; 
-import { getAuth, createUserWithEmailAndPassword, updateProfile, signInWithPopup, GoogleAuthProvider } from "firebase/auth";
-import { auth } from "../firebase";
+import { doc, setDoc } from "firebase/firestore"; 
+import { createUserWithEmailAndPassword, updateProfile, signInWithPopup, GoogleAuthProvider } from "firebase/auth";
+import { auth, firestore } from "../firebase";
 import { useStoreContext } from '../Context/context.jsx';
 import { useState, useRef } from 'react';
 
@@ -34,9 +34,6 @@ function RegisterView() {
     { genre: "War", id: 10752 },
     { genre: "Western", id: 37 }
   ];
-
-  const db = getFirestore();
-  const auth = getAuth();
 
   function displayError(error) {
     console.error("Error creating user with email and password:")
@@ -73,16 +70,14 @@ function RegisterView() {
         return;
       }
 
-      await setDoc(doc(db, "users", user.uid), {
+      await setDoc(doc(firestore, "users", user.uid), {
         firstName,
         lastName,
         email,
         selectedGenres
       });
 
-      await updateProfile(user, { displayName: `${firstName} ${lastName}` });
       setUser(user);
-
       navigate('/movies');
       console.log(user);
     } catch (error) {
@@ -104,10 +99,7 @@ function RegisterView() {
       const user = (await signInWithPopup(auth, new GoogleAuthProvider())).user;
       const selectedGenres = genres.filter((genre) => selectedGenresIds.includes(genre.id));
 
-      await setDoc(doc(db, "users", user.uid), {
-        firstName: user.displayName.split(' ')[0],
-        lastName: user.displayName.split(' ')[1] || '',
-        email: user.email,
+      await setDoc(doc(firestore, "users", user.uid), {
         selectedGenres
       });
 

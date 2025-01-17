@@ -47,16 +47,37 @@ function SettingsView() {
     useEffect(() => {
         const fetchUserData = async () => {
             if (user) {
+                user.providerData.forEach((profile) => {
+                    if (profile.providerId === "google.com") {
+                        setIsGoogleUser(true);
+                        console.log("set google use");
+                    }
+                });
+                console.log("isGoogleUser");
+                console.log(isGoogleUser);
                 const userDoc = await getDoc(doc(db, "users", user.uid));
-                if (userDoc.exists()) {
-                    const userData = userDoc.data();
-                    setFirstName(userData.firstName);
-                    setLastName(userData.lastName);
-                    setEmail(userData.email);
-                    setNewFirstName(userData.firstName);
-                    setNewLastName(userData.lastName);
-                    setSelectedGenres(userData.selectedGenres || []);
-                    setIsGoogleUser(user.providerData.some(provider => provider.providerId === 'google.com'));
+                if (isGoogleUser) {
+                    setFirstName(user.displayName.split(' ')[0]);
+                    setLastName(user.displayName.split(' ')[1]);
+                    setNewFirstName(user.displayName.split(' ')[0]);
+                    setNewLastName(user.displayName.split(' ')[1]);
+                    setEmail(user.email);
+                    console.log("email");
+                    console.log(user.email);
+                    if (userDoc.exists()) {
+                        const userData = userDoc.data();
+                        setSelectedGenres(userData.selectedGenres || []);
+                    }
+                } else {
+                    if (userDoc.exists()) {
+                        const userData = userDoc.data();
+                        setFirstName(userData.firstName);
+                        setLastName(userData.lastName);
+                        setEmail(userData.email);
+                        setNewFirstName(userData.firstName);
+                        setNewLastName(userData.lastName);
+                        setSelectedGenres(userData.selectedGenres || []);
+                    }
                 }
             }
         };
@@ -216,7 +237,7 @@ function SettingsView() {
                 <div className="settings-section">
                     <label className="settings-info-value">
                         {isGoogleUser ? (
-                            <span>{firstName}</span>
+                            <span>{user.displayName.split(' ')[0]}</span>
                         ) : (
                             isEditingFirstName ? (
                                 <input type="text" value={newFirstName} onChange={handleFirstNameChange} />
@@ -245,7 +266,7 @@ function SettingsView() {
                 <div className="settings-section">
                     <label className="settings-info-value">
                         {isGoogleUser ? (
-                            <span>{lastName}</span>
+                            <span>{user.displayName.split(' ')[1]}</span>
                         ) : (
                             isEditingLastName ? (
                                 <input type="text" value={newLastName} onChange={handleLastNameChange} />
