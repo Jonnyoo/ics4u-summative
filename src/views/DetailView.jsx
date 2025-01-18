@@ -2,6 +2,8 @@ import axios from "axios";
 import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import { useStoreContext } from '../Context/context';
+import { doc, getDoc } from "firebase/firestore";
+import { firestore } from "../firebase";
 import "./DetailView.css"
 
 function DetailMovieView() {
@@ -9,7 +11,9 @@ function DetailMovieView() {
     const [movie, setMovie] = useState([]);
     const { id } = useParams();
     const { cart, setCart } = useStoreContext();
+    const [previousPurchases, setPreviousPurchases] = useState([]);
     const isInCart = cart.has(id);
+    const isPurchased = previousPurchases.some(purchase => purchase.id === id);
 
     useEffect(() => {
         async function fetchMovieDetails() {
@@ -26,6 +30,27 @@ function DetailMovieView() {
 
         fetchMovieDetails();
     }, [id]);
+
+    useEffect(() => {
+        async function fetchPreviousPurchases() {
+            const userDocRef = doc(firestore, "users", user.uid);
+            const userDoc = await getDoc(userDocRef);
+            if (userDoc.exists()) {
+                const userData = userDoc.data();
+                setPreviousPurchases(userData.previousPurchases || []);
+            }
+        }
+        fetchPreviousPurchases();
+    }, [user]);
+
+    const handleAddToCart = () => {
+        if (isPurchased) {
+            showToast('You have already purchased this movie!');
+            return;
+        }
+        setCart((prevCart) => prevCart.set(id, { title: movie.original_title, url: movie.poster_path }));
+        showToast('Added to cart!');
+    };
 
     return (
         <div className="movie-detail">

@@ -1,37 +1,45 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { getFirestore, doc, getDoc } from "firebase/firestore";
-import { getAuth, signOut } from "firebase/auth";
+import { doc, getDoc } from "firebase/firestore";
+import { signOut } from "firebase/auth";
 import { useStoreContext } from '../Context/context.jsx';
+import { auth, firestore } from "../firebase";
 import './Header.css';
 
 function Header() {
     const [firstName, setFirstName] = useState("");
     const { user } = useStoreContext();
     const navigate = useNavigate();
-    const db = getFirestore();
-    const auth = getAuth();
     const currentUser = auth.currentUser;
+    const { showToast } = useStoreContext();
 
     useEffect(() => {
         const fetchUserData = async () => {
-            if (currentUser) {
-                const userDoc = await getDoc(doc(db, "users", currentUser.uid));
-                if (userDoc.exists()) {
-                    const userData = userDoc.data();
+            const userDoc = await getDoc(doc(firestore, "users", user.uid));
+            if (userDoc.exists()) {
+                const userData = userDoc.data();
+
+                if (userData.signInMethod == "email") {
                     setFirstName(userData.firstName);
+                    console.log("First name: ", userData.firstName);
+                }
+
+                if (userData.signInMethod == "google") {
+                    setFirstName(user.displayName.split(' ')[0]);
                 }
             }
         };
 
         fetchUserData();
-    }, [currentUser, db]);
+    }, [currentUser, firestore]);
 
     const handleLogout = async () => {
         try {
             await signOut(auth);
             navigate('/');
+            showToast('Logged out!');
         } catch (error) {
+            showToast('Error logging out!');
             console.error("Error logging out: ", error);
         }
     };

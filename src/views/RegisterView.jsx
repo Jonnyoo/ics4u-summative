@@ -1,7 +1,7 @@
 import "./RegisterView.css";
 import Header from "../Components/Header";
 import { Link, useNavigate } from 'react-router-dom';
-import { doc, setDoc } from "firebase/firestore"; 
+import { doc, setDoc } from "firebase/firestore";
 import { createUserWithEmailAndPassword, updateProfile, signInWithPopup, GoogleAuthProvider } from "firebase/auth";
 import { auth, firestore } from "../firebase";
 import { useStoreContext } from '../Context/context.jsx';
@@ -17,6 +17,7 @@ function RegisterView() {
   const { setUser } = useStoreContext();
   const navigate = useNavigate();
   const checkBoxesRef = useRef({});
+  const { showToast } = useStoreContext();
   const genres = [
     { genre: "Sci-Fi", id: 878 },
     { genre: "Thriller", id: 53 },
@@ -36,13 +37,10 @@ function RegisterView() {
   ];
 
   function displayError(error) {
-    console.error("Error creating user with email and password:")
-    console.error(error.message);
-    // setErrorMessage(`Error creating user with email and password! ${error.message}`);
     if (error.message === "Firebase: Error (auth/email-already-in-use).") {
-      setErrorMessage("This email is already in use!");
+      showToast("This email is already in use!");
     } else if (error.message === "Firebase: Password should be at least 6 characters (auth/weak-password).") {
-      setErrorMessage("Password should be at least 6 characters!");
+      showToast("Password should be at least 6 characters!");
     }
   }
 
@@ -51,7 +49,17 @@ function RegisterView() {
 
     try {
       if (confirmPassword != password) {
-        setErrorMessage("Your passwords don't match!");
+        showToast("Your passwords don't match!");
+        return;
+      }
+
+      const selectedGenresIds = Object.keys(checkBoxesRef.current)
+        .filter((genreId) => checkBoxesRef.current[genreId].checked)
+        .map(Number);
+
+      const selectedGenres = genres.filter((genre) => selectedGenresIds.includes(genre.id));
+      if (selectedGenresIds.length < 10) {
+        showToast("You need at least 10 genres!");
         return;
       }
 
@@ -59,29 +67,20 @@ function RegisterView() {
       const user = userCredential.user;
       await updateProfile(user, { displayName: `${firstName} ${lastName}` });
 
-      const selectedGenresIds = Object.keys(checkBoxesRef.current)
-        .filter((genreId) => checkBoxesRef.current[genreId].checked)
-        .map(Number);
-
-        const selectedGenres = genres.filter((genre) => selectedGenresIds.includes(genre.id));
-
-      if (selectedGenresIds.length < 10) {
-        setErrorMessage("You need at least 10 genres!");
-        return;
-      }
-
       await setDoc(doc(firestore, "users", user.uid), {
         firstName,
         lastName,
         email,
+        signInMethod: "email",
         selectedGenres,
-        signInMethod: "email"
+        previousPurchases: []
       });
 
       setUser(user);
       navigate('/movies');
-      console.log(user);
+      showToast("Registered successfully using Email!");
     } catch (error) {
+      showToast("Error creating user with Email!");
       displayError(error);
     }
   };
@@ -93,7 +92,7 @@ function RegisterView() {
         .map(Number);
 
       if (selectedGenresIds.length < 10) {
-        setErrorMessage("You need at least 10 genres!");
+        showToast("You need at least 10 genres!");
         return;
       }
 
@@ -101,41 +100,18 @@ function RegisterView() {
       const selectedGenres = genres.filter((genre) => selectedGenresIds.includes(genre.id));
 
       await setDoc(doc(firestore, "users", user.uid), {
+        signInMethod: "google",
         selectedGenres,
-        signInMethod: "google"
+        previousPurchases: []
       });
 
-      console.log("signed in with google");
       setUser(user);
-      console.log("set user");
       navigate('/movies');
-      console.log("navigated");
-      console.log(user);
+      showToast("Registered successfully using Google!");
     } catch {
+      showToast("Error creating user with Google!");
       alert("Error creating user with Google!");
     }
-  }
-
-  function handleSubmit(event) {
-    event.preventDefault();
-
-    const selectedGenresIds = Object.keys(checkBoxesRef.current)
-      .filter((genreId) => checkBoxesRef.current[genreId].checked)
-      .map(Number);
-
-    if (selectedGenresIds.length < 10) {
-      alert("You need at least 10 genres!");
-      return;
-    }
-
-    const selectedGenres = genres.filter((genre) => selectedGenresIds.includes(genre.id));
-
-    if (confirmedPassword.current.value != password.current.value) {
-      alert("Your passwords don't match!");
-      return;
-    }
-
-    navigate('/login');
   }
 
   return (

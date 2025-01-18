@@ -14,13 +14,16 @@
     padding: 10px;
     background-color: #15151500;
     max-width: 900px;
+    position: relative;
 }
 
 .genre-view-item {
     width: 160px;
     text-align: center;
     margin-bottom: 20px;
-    transition: transform 0.3s ease;
+    transition: transform 0.3s ease, width 0.3s ease, box-shadow 0.3s ease;
+    position: relative;
+    overflow: hidden;
 }
 
 .genre-view-item a {
@@ -36,8 +39,21 @@
     transition: transform 0.3s ease;
 }
 
+.genre-view-item:hover {
+    transform: scale(1.30);
+    z-index: 10;
+    border-radius: 10px;
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+}
+
 .genre-view-item:hover .genre-view-image {
     transform: scale(1.05);
+}
+
+.genre-view-item:hover .genre-view-details {
+    opacity: 1;
+    transform: translateY(0);
+    transition-delay: 0.1s; /* Add a small delay before the details appear */
 }
 
 .no-image {
@@ -57,6 +73,45 @@
     margin-top: 10px;
     color: #fff;
     font-weight: bold;
+}
+
+.genre-view-details {
+    position: absolute;
+    bottom: 10px; /* Add margin from the bottom edge */
+    left: 10px; /* Add margin from the left edge */
+    right: 10px; /* Add margin from the right edge */
+    background-color: rgba(0, 0, 0, 0.6);
+    color: #fff;
+    padding: 10px;
+    opacity: 0;
+    transform: translateY(100%);
+    transition: opacity 0.3s ease, transform 0.3s ease;
+    text-align: left; /* Align items to the left */
+    backdrop-filter: blur(10px); /* Add blur filter */
+    border-radius: 8px; /* Make it a rounded rectangle */
+}
+
+.genre-view-details h3 {
+    margin: 0;
+    font-size: 1rem;
+}
+
+.genre-view-details button {
+    background-color: #ffaa21;
+    border: none;
+    color: rgb(44, 44, 44);
+    padding: 5px 10px;
+    font-size: 0.9rem;
+    font-weight: bold;
+    border-radius: 5px;
+    cursor: pointer;
+    margin-top: 10px;
+    transition: transform 0.3s, box-shadow 0.3s;
+}
+
+.genre-view-details button:hover {
+    box-shadow: 0 0px 15px #ffaa21;
+    transform: translateY(-4px);
 }
 
 .genre-view-pagination-container {

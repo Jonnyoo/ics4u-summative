@@ -20,9 +20,8 @@ function SettingsView() {
     const [newPassword, setNewPassword] = useState("");
     const [isPasswordSectionExpanded, setIsPasswordSectionExpanded] = useState(false);
     const [errorMessage, setErrorMessage] = useState("");
-    const [toastMessage, setToastMessage] = useState("");
-    const toastTimeoutRef = useRef(null);
     const [signInMethod, setSignInMethod] = useState("");
+    const { showToast } = useStoreContext();
 
     const user = auth.currentUser;
 
@@ -48,44 +47,35 @@ function SettingsView() {
         const fetchUserData = async () => {
             if (user) {
                 const userDoc = await getDoc(doc(firestore, "users", user.uid));
-                const userData = userDoc.data();
-                // if (userDoc.exists()) {
-                //     const userData = userDoc.data();
-                //     setSignInMethod(userData.signInMethod);
-                //     console.log("sign in method");
-                //     console.log(userData.signInMethod);
-                // } else {
-                //     return;
-                // }
+                if (userDoc.exists()) {
+                    const userData = userDoc.data();
 
-                if (userData.signInMethod == "google") {
-                    console.log("google user");
-                    setFirstName(user.displayName.split(' ')[0]);
-                    setLastName(user.displayName.split(' ')[1]);
-                    setNewFirstName(user.displayName.split(' ')[0]);
-                    setNewLastName(user.displayName.split(' ')[1]);
-                    setEmail(user.email);
-                    console.log("email");
-                    console.log(user.email);
-                    if (userDoc.exists()) {
-                        const userData = userDoc.data();
+                    if (userData.signInMethod == "google") {
+                        console.log("google user");
+                        setFirstName(user.displayName.split(' ')[0]);
+                        setLastName(user.displayName.split(' ')[1]);
+                        setNewFirstName(user.displayName.split(' ')[0]);
+                        setNewLastName(user.displayName.split(' ')[1]);
+                        setEmail(user.email);
+                        setIsGoogleUser(true);
                         setSelectedGenres(userData.selectedGenres || []);
-                    }`  `
-                    return;
-                }
-                
-                if (userData.signInMethod == "email") {
-                    console.log("not google user");
-                    if (userDoc.exists()) {
-                        const userData = userDoc.data();
-                        setFirstName(userData.firstName);
-                        setLastName(userData.lastName);
-                        setEmail(userData.email);
-                        setNewFirstName(userData.firstName);
-                        setNewLastName(userData.lastName);
-                        setSelectedGenres(userData.selectedGenres || []);
+                        return;
                     }
-                    return;
+
+                    if (userData.signInMethod == "email") {
+                        console.log("not google user");
+                        if (userDoc.exists()) {
+                            const userData = userDoc.data();
+                            setFirstName(userData.firstName);
+                            setLastName(userData.lastName);
+                            setEmail(userData.email);
+                            setNewFirstName(userData.firstName);
+                            setNewLastName(userData.lastName);
+                            setSelectedGenres(userData.selectedGenres || []);
+                            setIsGoogleUser(false);
+                        }
+                        return;
+                    }
                 }
             }
         };
@@ -223,19 +213,6 @@ function SettingsView() {
         setIsEditingLastName(false);
     };
 
-    const showToast = (message) => {
-        if (toastTimeoutRef.current) {
-            clearTimeout(toastTimeoutRef.current);
-        }
-        setToastMessage("");
-        setTimeout(() => {
-            setToastMessage(message);
-            toastTimeoutRef.current = setTimeout(() => {
-                setToastMessage("");
-            }, 5000);
-        }, 100); // Small delay to reset the animation
-    };
-
     return (
         <div>
             <Header />
@@ -358,11 +335,6 @@ function SettingsView() {
                     <button className="edit-button" onClick={handleSaveGenres}>Save</button>
                 </div>
             </div>
-            {toastMessage && (
-                <div className="toast">
-                    {toastMessage}
-                </div>
-            )}
         </div>
     );
 }
