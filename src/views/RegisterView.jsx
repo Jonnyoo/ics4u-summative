@@ -74,7 +74,8 @@ function RegisterView() {
         firstName,
         lastName,
         email,
-        selectedGenres
+        selectedGenres,
+        signInMethod: "email"
       });
 
       setUser(user);
@@ -100,7 +101,8 @@ function RegisterView() {
       const selectedGenres = genres.filter((genre) => selectedGenresIds.includes(genre.id));
 
       await setDoc(doc(firestore, "users", user.uid), {
-        selectedGenres
+        selectedGenres,
+        signInMethod: "google"
       });
 
       console.log("signed in with google");

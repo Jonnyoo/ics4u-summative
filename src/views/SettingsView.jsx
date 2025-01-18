@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { getFirestore, doc, getDoc, updateDoc } from "firebase/firestore";
-import { getAuth, updatePassword, reauthenticateWithCredential, EmailAuthProvider } from "firebase/auth";
+import { doc, getDoc, updateDoc } from "firebase/firestore";
+import { updatePassword, reauthenticateWithCredential, EmailAuthProvider } from "firebase/auth";
 import Header from "../Components/Header";
+import { auth, firestore } from "../firebase";
 import "./SettingsView.css";
 import { useStoreContext } from '../Context/context.jsx';
 
@@ -21,6 +22,9 @@ function SettingsView() {
     const [errorMessage, setErrorMessage] = useState("");
     const [toastMessage, setToastMessage] = useState("");
     const toastTimeoutRef = useRef(null);
+    const [signInMethod, setSignInMethod] = useState("");
+
+    const user = auth.currentUser;
 
     const genresList = [
         { genre: "Sci-Fi", id: 878 },
@@ -40,23 +44,22 @@ function SettingsView() {
         { genre: "Western", id: 37 }
     ];
 
-    const db = getFirestore();
-    const auth = getAuth();
-    const user = auth.currentUser;
-
     useEffect(() => {
         const fetchUserData = async () => {
             if (user) {
-                user.providerData.forEach((profile) => {
-                    if (profile.providerId === "google.com") {
-                        setIsGoogleUser(true);
-                        console.log("set google use");
-                    }
-                });
-                console.log("isGoogleUser");
-                console.log(isGoogleUser);
-                const userDoc = await getDoc(doc(db, "users", user.uid));
-                if (isGoogleUser) {
+                const userDoc = await getDoc(doc(firestore, "users", user.uid));
+                const userData = userDoc.data();
+                // if (userDoc.exists()) {
+                //     const userData = userDoc.data();
+                //     setSignInMethod(userData.signInMethod);
+                //     console.log("sign in method");
+                //     console.log(userData.signInMethod);
+                // } else {
+                //     return;
+                // }
+
+                if (userData.signInMethod == "google") {
+                    console.log("google user");
                     setFirstName(user.displayName.split(' ')[0]);
                     setLastName(user.displayName.split(' ')[1]);
                     setNewFirstName(user.displayName.split(' ')[0]);
@@ -67,8 +70,12 @@ function SettingsView() {
                     if (userDoc.exists()) {
                         const userData = userDoc.data();
                         setSelectedGenres(userData.selectedGenres || []);
-                    }
-                } else {
+                    }`  `
+                    return;
+                }
+                
+                if (userData.signInMethod == "email") {
+                    console.log("not google user");
                     if (userDoc.exists()) {
                         const userData = userDoc.data();
                         setFirstName(userData.firstName);
@@ -78,12 +85,13 @@ function SettingsView() {
                         setNewLastName(userData.lastName);
                         setSelectedGenres(userData.selectedGenres || []);
                     }
+                    return;
                 }
             }
         };
 
         fetchUserData();
-    }, [user, db, setSelectedGenres]);
+    }, [user, firestore, setSelectedGenres]);
 
     const handleFirstNameChange = (e) => {
         setNewFirstName(e.target.value);
@@ -162,7 +170,7 @@ function SettingsView() {
     const handleSaveFirstName = async () => {
         if (user) {
             try {
-                await updateDoc(doc(db, "users", user.uid), {
+                await updateDoc(doc(firestore, "users", user.uid), {
                     firstName: newFirstName
                 });
                 setFirstName(newFirstName);
@@ -178,7 +186,7 @@ function SettingsView() {
     const handleSaveLastName = async () => {
         if (user) {
             try {
-                await updateDoc(doc(db, "users", user.uid), {
+                await updateDoc(doc(firestore, "users", user.uid), {
                     lastName: newLastName
                 });
                 setLastName(newLastName);
@@ -194,7 +202,7 @@ function SettingsView() {
     const handleSaveGenres = async () => {
         if (user) {
             try {
-                await updateDoc(doc(db, "users", user.uid), {
+                await updateDoc(doc(firestore, "users", user.uid), {
                     selectedGenres
                 });
                 showToast("Saved!");
