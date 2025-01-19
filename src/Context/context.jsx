@@ -3,6 +3,7 @@ import { onAuthStateChanged } from "firebase/auth";
 import { Map } from 'immutable';
 import { auth } from "../firebase";
 import Toast from '../Components/Toast';
+import "./context.css";
 
 export const StoreContext = createContext();
 
@@ -30,7 +31,7 @@ export const StoreProvider = ({ children }) => {
     }, [])
 
     if (loading) {
-        return <h1>Loading...</h1>
+        return <h1 className="loading-message">Loading...</h1>
     }
 
     const showToast = (message) => {

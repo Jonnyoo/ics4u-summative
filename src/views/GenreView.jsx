@@ -83,6 +83,7 @@ function GenreView() {
                 {movies.length > 0 ? (
                     movies.map((movie) => {
                         const isInCart = cart.has(movie.id.toString());
+                        const isPurchased = previousPurchases.some(purchase => purchase.id === movie.id.toString());
                         return (
                             <div key={movie.id} className="genre-view-item">
                                 <Link to={`/movies/details/${movie.id}`}>
@@ -102,9 +103,9 @@ function GenreView() {
                                         <button
                                             onClick={() => handleAddToCart(movie)}
                                             className="buy-button"
-                                            disabled={isInCart}
+                                            disabled={isInCart || isPurchased}
                                         >
-                                            {isInCart ? 'Added' : 'Buy'}
+                                            {isInCart ? 'Added' : isPurchased ? 'Purchased' : 'Buy'}
                                         </button>
                                     </div>
                                 )}

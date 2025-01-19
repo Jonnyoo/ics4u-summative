@@ -19,9 +19,10 @@ function SettingsView() {
     const [currentPassword, setCurrentPassword] = useState("");
     const [newPassword, setNewPassword] = useState("");
     const [isPasswordSectionExpanded, setIsPasswordSectionExpanded] = useState(false);
-    const [errorMessage, setErrorMessage] = useState("");
-    const [signInMethod, setSignInMethod] = useState("");
     const { showToast } = useStoreContext();
+    const [previousPurchases, setPreviousPurchases] = useState([]);
+    const [currentPage, setCurrentPage] = useState(1);
+    const itemsPerPage = 8;
 
     const user = auth.currentUser;
 
@@ -59,6 +60,7 @@ function SettingsView() {
                         setEmail(user.email);
                         setIsGoogleUser(true);
                         setSelectedGenres(userData.selectedGenres || []);
+                        setPreviousPurchases(userData.previousPurchases || []);
                         return;
                     }
 
@@ -72,6 +74,7 @@ function SettingsView() {
                             setNewFirstName(userData.firstName);
                             setNewLastName(userData.lastName);
                             setSelectedGenres(userData.selectedGenres || []);
+                            setPreviousPurchases(userData.previousPurchases || []);
                             setIsGoogleUser(false);
                         }
                         return;
@@ -107,7 +110,6 @@ function SettingsView() {
         setIsPasswordSectionExpanded(false);
         setCurrentPassword("");
         setNewPassword("");
-        setErrorMessage("");
     };
 
     const handleUpdatePassword = async () => {
@@ -116,30 +118,25 @@ function SettingsView() {
                 const credential = EmailAuthProvider.credential(user.email, currentPassword);
                 await reauthenticateWithCredential(user, credential);
             } catch (error) {
-                setErrorMessage("Your current password is incorrect!");
                 showToast("Your current password is incorrect!");
                 return;
             }
         } else {
-            setErrorMessage("Please enter your current password!");
             showToast("Please enter your current password!");
             return;
         }
 
         if (!newPassword) {
-            setErrorMessage("Please enter a new password!");
             showToast("Please enter a new password!");
             return;
         }
 
         if (newPassword.length < 6) {
-            setErrorMessage("New password should be at least 6 characters!");
             showToast("New password should be at least 6 characters!");
             return;
         }
 
         if (currentPassword === newPassword) {
-            setErrorMessage("New password should be different from the current password!");
             showToast("New password should be different from the current password!");
             return;
         }
@@ -151,8 +148,6 @@ function SettingsView() {
             setCurrentPassword("");
             setNewPassword("");
         } catch (error) {
-            console.error("Error updating password: ", error);
-            setErrorMessage("Failed to update password.");
             showToast("Failed to update password.");
         }
     };
@@ -167,7 +162,6 @@ function SettingsView() {
                 setIsEditingFirstName(false);
                 showToast("Saved!");
             } catch (error) {
-                console.error("Error updating first name: ", error);
                 showToast("Failed to update first name.");
             }
         }
@@ -183,7 +177,6 @@ function SettingsView() {
                 setIsEditingLastName(false);
                 showToast("Saved!");
             } catch (error) {
-                console.error("Error updating last name: ", error);
                 showToast("Failed to update last name.");
             }
         }
@@ -197,8 +190,7 @@ function SettingsView() {
                 });
                 showToast("Saved!");
             } catch (error) {
-                console.error("Error updating favorite genres: ", error);
-                alert("Failed to update favorite genres.");
+                showToast("Failed to update favorite genres.");
             }
         }
     };
@@ -213,126 +205,158 @@ function SettingsView() {
         setIsEditingLastName(false);
     };
 
+    const handleNextPage = () => {
+        setCurrentPage((prevPage) => prevPage + 1);
+    };
+
+    const handlePrevPage = () => {
+        setCurrentPage((prevPage) => Math.max(prevPage - 1, 1));
+    };
+
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    const endIndex = startIndex + itemsPerPage;
+    const currentItems = previousPurchases.slice(startIndex, endIndex);
+
     return (
         <div>
             <Header />
             <h1 className="settings-title">Settings</h1>
-            <div className="settings-view">
-                <label className="settings-label">First name</label>
-                <div className="settings-section">
-                    <label className="settings-info-value">
-                        {isGoogleUser ? (
-                            <span>{user.displayName.split(' ')[0]}</span>
-                        ) : (
-                            isEditingFirstName ? (
-                                <input type="text" value={newFirstName} onChange={handleFirstNameChange} />
+            <div className="settings-container">
+                <div className="settings-view">
+                    <label className="settings-label">First name</label>
+                    <div className="settings-section">
+                        <label className="settings-info-value">
+                            {isGoogleUser ? (
+                                <span>{user.displayName.split(' ')[0]}</span>
                             ) : (
-                                <span>{firstName}</span>
-                            )
-                        )}
-                    </label>
-                    {!isGoogleUser && (
-                        <>
-                            {!isEditingFirstName && (
-                                <button className="edit-button" onClick={() => setIsEditingFirstName(true)}>Edit</button>
+                                isEditingFirstName ? (
+                                    <input type="text" value={newFirstName} onChange={handleFirstNameChange} />
+                                ) : (
+                                    <span>{firstName}</span>
+                                )
                             )}
-                            {isEditingFirstName && (
-                                <>
-                                    <div className="edit-buttons">
-                                        <button className="edit-button" onClick={handleSaveFirstName}>Save</button>
-                                        <button className="edit-button" onClick={handleCancelFirstNameChange}>Cancel</button>
-                                    </div>
-                                </>
-                            )}
-                        </>
-                    )}
-                </div>
-                <label className="settings-label">Last name</label>
-                <div className="settings-section">
-                    <label className="settings-info-value">
-                        {isGoogleUser ? (
-                            <span>{user.displayName.split(' ')[1]}</span>
-                        ) : (
-                            isEditingLastName ? (
-                                <input type="text" value={newLastName} onChange={handleLastNameChange} />
-                            ) : (
-                                <span>{lastName}</span>
-                            )
-                        )}
-                    </label>
-                    {!isGoogleUser && (
-                        <>
-                            {!isEditingLastName && (
-                                <button className="edit-button" onClick={() => setIsEditingLastName(true)}>Edit</button>
-                            )}
-                            {isEditingLastName && (
-                                <>
-                                    <div className="edit-buttons">
-                                        <button className="edit-button" onClick={handleSaveLastName}>Save</button>
-                                        <button className="edit-button" onClick={handleCancelLastNameChange}>Cancel</button>
-                                    </div>
-                                </>
-                            )}
-                        </>
-                    )}
-                </div>
-                <label className="settings-label">Email</label>
-                <div className="settings-section">
-                    <span className="settings-info-value">{email}</span>
-                </div>
-                {!isGoogleUser && (
-                    <>
-                        <label className="settings-label">Password</label>
-                        <div className="settings-section">
-                            {isPasswordSectionExpanded ? (
-                                <>
-                                    <div className="change-password-section">
-                                        <div className="current-password-section">
-                                            <input
-                                                type="password"
-                                                value={currentPassword}
-                                                onChange={(e) => setCurrentPassword(e.target.value)}
-                                                placeholder="Current password"
-                                            />
-                                            <button className="edit-button" onClick={handleCancelPasswordChange}>Cancel</button>
+                        </label>
+                        {!isGoogleUser && (
+                            <>
+                                {!isEditingFirstName && (
+                                    <button className="edit-button" onClick={() => setIsEditingFirstName(true)}>Edit</button>
+                                )}
+                                {isEditingFirstName && (
+                                    <>
+                                        <div className="edit-buttons">
+                                            <button className="edit-button" onClick={handleSaveFirstName}>Save</button>
+                                            <button className="edit-button" onClick={handleCancelFirstNameChange}>Cancel</button>
                                         </div>
-                                        <div className="new-password-section">
-                                            <input
-                                                type="password"
-                                                value={newPassword}
-                                                onChange={(e) => setNewPassword(e.target.value)}
-                                                placeholder="New password"
-                                            />
-                                            <button className="edit-button" onClick={handleUpdatePassword}>Update</button>
-                                        </div>
-                                        {errorMessage && <div className="error-message">{errorMessage}</div>}
-                                    </div>
-                                </>
-                            ) : (
-                                <>
-                                    <span className="settings-info-value">••••••••</span>
-                                    <button className="edit-button" onClick={handlePasswordChange}>Change</button>
-                                </>
-                            )}
-                        </div>
-                    </>
-                )}
-                <label className="settings-label">Favorite Genres</label>
-                <div className="settings-section">
-                    <div className="settings-genre-checkboxes">
-                        {genresList.map((genre) => (
-                            <div key={genre.id}>
-                                <input
-                                    type="checkbox"
-                                    id={`genre-${genre.id}`}
-                                    checked={selectedGenres.some(g => g.id === genre.id)}
-                                    onChange={() => handleGenreChange(genre)}
-                                />
-                                <label htmlFor={`genre-${genre.id}`}>{genre.genre}</label>
-                            </div>
-                        ))}
+                                    </>
+                                )}
+                            </>
+                        )}
                     </div>
-                    <button className="edit-button" onClick={handleSaveGenres}>Save</button>
+                    <label className="settings-label">Last name</label>
+                    <div className="settings-section">
+                        <label className="settings-info-value">
+                            {isGoogleUser ? (
+                                <span>{user.displayName.split(' ')[1]}</span>
+                            ) : (
+                                isEditingLastName ? (
+                                    <input type="text" value={newLastName} onChange={handleLastNameChange} />
+                                ) : (
+                                    <span>{lastName}</span>
+                                )
+                            )}
+                        </label>
+                        {!isGoogleUser && (
+                            <>
+                                {!isEditingLastName && (
+                                    <button className="edit-button" onClick={() => setIsEditingLastName(true)}>Edit</button>
+                                )}
+                                {isEditingLastName && (
+                                    <>
+                                        <div className="edit-buttons">
+                                            <button className="edit-button" onClick={handleSaveLastName}>Save</button>
+                                            <button className="edit-button" onClick={handleCancelLastNameChange}>Cancel</button>
+                                        </div>
+                                    </>
+                                )}
+                            </>
+                        )}
+                    </div>
+                    <label className="settings-label">Email</label>
+                    <div className="settings-section">
+                        <span className="settings-info-value">{email}</span>
+                    </div>
+                    {!isGoogleUser && (
+                        <>
+                            <label className="settings-label">Password</label>
+                            <div className="settings-section">
+                                {isPasswordSectionExpanded ? (
+                                    <>
+                                        <div className="change-password-section">
+                                            <div className="current-password-section">
+                                                <input
+                                                    type="password"
+                                                    value={currentPassword}
+                                                    onChange={(e) => setCurrentPassword(e.target.value)}
+                                                    placeholder="Current password"
+                                                />
+                                                <button className="edit-button" onClick={handleCancelPasswordChange}>Cancel</button>
+                                            </div>
+                                            <div className="new-password-section">
+                                                <input
+                                                    type="password"
+                                                    value={newPassword}
+                                                    onChange={(e) => setNewPassword(e.target.value)}
+                                                    placeholder="New password"
+                                                />
+                                                <button className="edit-button" onClick={handleUpdatePassword}>Update</button>
+                                            </div>
+                                        </div>
+                                    </>
+                                ) : (
+                                    <>
+                                        <span className="settings-info-value">••••••••</span>
+                                        <button className="edit-button" onClick={handlePasswordChange}>Change</button>
+                                    </>
+                                )}
+                            </div>
+                        </>
+                    )}
+                <label className="settings-label">Favorite Genres</label>
+                    <div className="settings-section">
+                        <div className="settings-genre-checkboxes">
+                            {genresList.map((genre) => (
+                                <div key={genre.id}>
+                                    <input
+                                        type="checkbox"
+                                        id={`genre-${genre.id}`}
+                                        checked={selectedGenres.some(g => g.id === genre.id)}
+                                        onChange={() => handleGenreChange(genre)}
+                                    />
+                                    <label htmlFor={`genre-${genre.id}`}>{genre.genre}</label>
+                                </div>
+                            ))}
+                        </div>
+                        <button className="edit-button" onClick={handleSaveGenres}>Save</button>
+                    </div>
+                </div>
+                <div className="previous-purchases-container">
+                    <h2 className="previous-purchases-title">Previous Purchases</h2>
+                    <div className="previous-purchases">
+                        {currentItems.length > 0 ? (
+                            currentItems.map((purchase) => (
+                                <div key={purchase.id} className="purchase-item">
+                                    <img src={`https://image.tmdb.org/t/p/w200${purchase.url}`} alt={purchase.title} className="purchase-image" />
+                                    <span className="purchase-title">{purchase.title}</span>
+                                </div>
+                            ))
+                        ) : (
+                            <p>No previous purchases found.</p>
+                        )}
+                    </div>
+                    <div className="pagination-buttons">
+                        <button className="pagination-button" onClick={handlePrevPage} disabled={currentPage === 1}>Previous</button>
+                        <button className="pagination-button" onClick={handleNextPage} disabled={endIndex >= previousPurchases.length}>Next</button>
+                    </div>
                 </div>
             </div>
         </div>

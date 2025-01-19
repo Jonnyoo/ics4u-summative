@@ -11,9 +11,11 @@ function DetailMovieView() {
     const [movie, setMovie] = useState([]);
     const { id } = useParams();
     const { cart, setCart } = useStoreContext();
+    const { user } = useStoreContext();
     const [previousPurchases, setPreviousPurchases] = useState([]);
     const isInCart = cart.has(id);
     const isPurchased = previousPurchases.some(purchase => purchase.id === id);
+    const { showToast } = useStoreContext();
 
     useEffect(() => {
         async function fetchMovieDetails() {
@@ -66,11 +68,11 @@ function DetailMovieView() {
                         <p><strong>Popularity:</strong> {movie.popularity}</p>
                         <p><strong>Box Office:</strong> {movie.revenue}$</p>
                         <button
-                            onClick={() => setCart((prevCart) => prevCart.set(id, { title: movie.original_title, url: movie.poster_path }))}
+                            onClick={() => handleAddToCart()}
                             className="buy-button"
-                            disabled={isInCart}
+                            disabled={isInCart || isPurchased}
                         >
-                            {isInCart ? 'Added' : 'Buy'}
+                            {isInCart ? 'Added' : isPurchased ? 'Purchased' : 'Buy'}
                         </button>
                     </div>
                 </div>

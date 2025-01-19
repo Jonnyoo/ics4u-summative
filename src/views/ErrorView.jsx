@@ -1,6 +1,12 @@
+import Header from "../Components/Header"
+import "./ErrorView.css"
+
 function ErrorView() {
     return (
-        <h1>This page does not exist</h1>
+        <div>
+            <Header />
+            <h1 className="error-message">This page does not exist</h1>
+        </div>
     )
 }
 

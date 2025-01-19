@@ -1,7 +1,8 @@
 import { useStoreContext } from '../Context/context.jsx';
 import Header from "../Components/Header";
-import { doc, getDoc } from "firebase/firestore";
+import { doc, getDoc, updateDoc } from "firebase/firestore";
 import { firestore } from "../firebase";
+import { Map } from 'immutable';
 import "./CartView.css";
 
 function CartView() {
@@ -20,6 +21,10 @@ function CartView() {
 
     const handleCheckout = async () => {
         try {
+            if (cart.size === 0) {
+                showToast('Cart is empty!');
+                return;
+            }
             const userDocRef = doc(firestore, "users", user.uid);
             const userDoc = await getDoc(userDocRef);
             if (userDoc.exists()) {
